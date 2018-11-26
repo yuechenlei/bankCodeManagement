@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.xiaoqingxin.bankCodeService.BaseTest;
-import com.xiaoqingxin.bankCodeService.service.CnapsService;
+import com.xiaoqingxin.bankCodeService.redisService.CnapsService;
 
 import redis.clients.jedis.JedisPool;
 

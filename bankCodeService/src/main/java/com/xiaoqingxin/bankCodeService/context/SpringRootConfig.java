@@ -1,5 +1,6 @@
 package com.xiaoqingxin.bankCodeService.context;
 
+
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.stereotype.Controller;
 
@@ -20,20 +22,39 @@ import org.springframework.stereotype.Controller;
 *
  */
 @Configuration
-@Import({ RedisConfig.class })
+@ImportResource({"classpath:/spring-dataSource.xml","classpath:/spring-mvc.xml"})
+@Import({ RedisConfig.class})
 @ComponentScan(basePackages = "com.xiaoqingxin.bankCodeService", excludeFilters = { @Filter(Controller.class), @Filter(Configuration.class) })
 public class SpringRootConfig {
-
-	@Bean
+//	private static final Logger logger = LoggerFactory.getLogger(SpringRootConfig.class);
+    
+	// 让spring能够解析properties文件
+	@Bean(name="propertySourcesPlaceholderConfigurer")
 	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-		return new PropertySourcesPlaceholderConfigurer();
+//		MutablePropertySources ps = new MutablePropertySources();
+//	    try {
+//			ps.addFirst(new ResourcePropertySource("classpath:/mariadb.properties"));
+//			ps.addFirst(new ResourcePropertySource("classpath:/redis.properties"));
+//		} catch (IOException e) {
+//			logger.error("", e);
+//		}
+	    PropertySourcesPlaceholderConfigurer pspc = new PropertySourcesPlaceholderConfigurer();
+//		pspc.setIgnoreResourceNotFound(false);
+//		pspc.setPropertySources(ps);
+		return pspc;
 	}
 
-	@Bean
+	@Bean(name="validator")
 	public Validator validator() {
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		return factory.getValidator();
 	}
+	
+//	@Bean(name="mariadbProperties")
+//	public ResourcePropertySource mariadbProperties() throws IOException {
+//		return new ResourcePropertySource("classpath:/mariadb.properties");
+//
+//	}
 	
 
 //	@Bean

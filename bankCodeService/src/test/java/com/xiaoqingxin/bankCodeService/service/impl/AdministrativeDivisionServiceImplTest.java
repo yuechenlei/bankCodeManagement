@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.xiaoqingxin.bankCodeService.BaseTest;
-import com.xiaoqingxin.bankCodeService.service.AdministrativeDivisionService;
+import com.xiaoqingxin.bankCodeService.redisService.AdministrativeDivisionService;
 
 
 

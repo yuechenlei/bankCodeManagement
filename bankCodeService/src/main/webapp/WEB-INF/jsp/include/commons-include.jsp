@@ -30,7 +30,7 @@
 		});
 	});
 
-	// 全局变量contextPath，存放着当前应用名
+	// 全局变量 存放着当前应用名 contextPath 
 	var contextPath = "${pageContext.request.contextPath}";
 	//var staticFilesHost = "${staticFilesHost}";
 </script>

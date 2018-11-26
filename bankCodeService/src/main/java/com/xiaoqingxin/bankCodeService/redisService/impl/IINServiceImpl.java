@@ -1,4 +1,4 @@
-package com.xiaoqingxin.bankCodeService.serviceImpl;
+package com.xiaoqingxin.bankCodeService.redisService.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 
 import com.xiaoqingxin.bankCodeService.C;
 import com.xiaoqingxin.bankCodeService.model.IIN;
-import com.xiaoqingxin.bankCodeService.service.IINService;
+import com.xiaoqingxin.bankCodeService.redisService.IINService;
 import com.xiaoqingxin.bankCodeService.utils.StringUtils;
 
 import redis.clients.jedis.exceptions.JedisConnectionException;

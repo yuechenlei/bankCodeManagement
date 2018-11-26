@@ -4,6 +4,7 @@
 <html>
 <head>
 <title>Bank code management</title>
+<link href="<spring:url value="/resources/css/test.css" />" rel="stylesheet" type="text/css" />
 <style type="text/css">
 	div{
 		margin-top: 10px;
@@ -60,6 +61,10 @@ function toNewPage(){
 		<br class="newPage2">
 		<div>
 			<a href="${pageContext.request.contextPath}/ad/adQuery/index.htm" class="onHover">银联地区码管理</a>
+		</div>
+		<br class="newPage2">
+		<div>
+			<a href="${pageContext.request.contextPath}/maria/cnapsExhibitionQuery/index.htm" class="onHover">mariaTest</a>
 		</div>
 	</div>
 </div>

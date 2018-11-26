@@ -36,18 +36,21 @@ public class WebInitializer implements WebApplicationInitializer {
 
 	@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
+//		ContextLoaderListener cll = new ContextLoaderListener();
 		logger.info("Web应用初始化");
 		// 创建Spring上下文
 		AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
 		rootContext.register(SpringRootConfig.class);
 		ConfigurableEnvironment environment = rootContext.getEnvironment();
 		try {
+			environment.getPropertySources().addFirst(new ResourcePropertySource("classpath:/mariadb.properties"));
 			environment.getPropertySources().addFirst(new ResourcePropertySource("classpath:/environment.properties"));
 //			environment.getPropertySources().addFirst(new ResourcePropertySource("classpath:/serverHost.properties"));
 		} catch (IOException e) {
 			logger.error("", e);
 		}
-		// 管理Spring上下文的生命周期
+//		rootContext.setEnvironment(environment);
+		// 管理Spring上下文的生命周期，ContextLoaderListener初始化Spring IoC容器
 		servletContext.addListener(new ContextLoaderListener(rootContext));
 		// 将Spring上下文放入工具类
 		ApplicationContextUtils.setApplicationContext(rootContext);
@@ -71,6 +74,7 @@ public class WebInitializer implements WebApplicationInitializer {
 		// 创建SpringMVC上下文
 		AnnotationConfigWebApplicationContext dispatcherContext = new AnnotationConfigWebApplicationContext();
 		dispatcherContext.register(SpringMVCConfig.class);
+//		dispatcherContext.refresh();
 		// 注册SpringMVC分发器
 		ServletRegistration.Dynamic dispatcher = servletContext.addServlet("dispatcher", new DispatcherServlet(dispatcherContext));
 		dispatcher.setLoadOnStartup(1);

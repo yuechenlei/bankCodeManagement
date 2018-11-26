@@ -4,6 +4,7 @@
 <html>
 <head>
 <title>Bank code management</title>
+<link href="<spring:url value="/resources/css/test2.css" />" rel="stylesheet" type="text/css" />
 <%
 	String username = request.getParameter("username");
 	String password = request.getParameter("password");

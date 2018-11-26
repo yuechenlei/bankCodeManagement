@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaoqingxin.bankCodeService.mapper.CnapsMapper">
+	<resultMap type="cnaps" id="cnapsMap">
+
+		<id     property="code"              column="code" />
+		<result property="name"              column="name" />
+		<result property="clearingBankCode"  column="clearing_bank_code" />
+		<result property="clearingBankLevel" column="clearing_bank_level" />
+		<result property="providerCode"      column="provider_code" />
+		<result property="adCode"            column="ad_Code" />
+		<result property="createDate"        column="create_date" />
+		<result property="lastModifyDate"    column="last_modify_date" />
+		<result property="vision"            column="vision" />
+
+	</resultMap>
+
+	<sql id="cnapsCols">
+		code,name,clearing_bank_code,clearing_bank_level,
+		provider_code,ad_Code,create_date,last_modify_date,vision
+	</sql>
+
+
+	<insert id="insert" parameterType="cnaps">
+		insert into cnaps(code,name,clearing_bank_code,clearing_bank_level,provider_code,
+		  ad_Code,create_date,last_modify_date,vision)
+		values(#{code}, #{name}, #{clearingBankCode}, #{clearingBankLevel},
+		  #{providerCode}, #{adCode}, #{createDate}, #{lastModifyDate}, #{vision})
+	</insert>
+
+	<delete id="delete" parameterType="string">
+		delete from cnaps where code=#{code}
+	</delete>
+
+	<update id="update" parameterType="cnaps">
+		update cnaps set 
+		code =#{code}, 
+		name =#{name}, 
+		clearing_bank_code = #{clearingBankCode},
+		clearing_bank_level = #{clearingBankLevel},
+		provider_code = #{providerCode},
+		ad_Code = #{adCode},
+		last_modify_date = #{lastModifyDate},
+		vision = #{vision}
+		where code= #{code}
+	</update>
+
+	<select id="get" parameterType="string" resultMap="cnapsMap">
+		select <include refid="cnapsCols" />  from cnaps 
+		where code = #{code}
+	</select>
+
+	<select id="find" parameterType="string" resultMap="cnapsMap">
+		select <include refid="cnapsCols" /> from cnaps
+		where name like concat('%', #{name}, '%')
+	</select>
+	
+	<select id="cnapsCombQuery" parameterType="cnaps" resultMap="cnapsMap">
+		select <include refid="cnapsCols" /> from cnaps
+		where 1=1
+		<if test="cnaps.name !=null and cnaps.name != '' ">
+		and name like concat('%', #{cnaps.name}, '%')
+		</if>
+		<if test="cnaps.clearingBankLevel !=null and cnaps.clearingBankLevel != '' ">
+		and clearing_bank_level = #{cnaps.clearingBankLevel}
+		</if>
+		<if test="cnaps.providerCode !=null and cnaps.providerCode != '' ">
+		and provider_code = #{cnaps.providerCode}
+		</if>
+		<if test="cnaps.adCode !=null and cnaps.adCode != '' ">
+		and ad_Code = #{cnaps.adCode}
+		</if>
+		<if test="cnaps.createDateStart !=null and cnaps.createDateStart != '' ">
+		and create_date &gt;= #{cnaps.createDateStart}
+		</if>
+		<if test="cnaps.createDateEnd !=null and cnaps.createDateEnd != '' ">
+		and create_date &lt;= #{cnaps.createDateEnd}
+		</if>
+		<if test="cnaps.lastModifyDateStart !=null and cnaps.lastModifyDateStart != '' ">
+		and last_modify_date &gt;= #{cnaps.lastModifyDateStart}
+		</if>
+		<if test="cnaps.lastModifyDateEnd !=null and cnaps.lastModifyDateEnd != '' ">
+		and last_modify_date &lt;= #{cnaps.lastModifyDateEnd}
+		</if>
+		<if test="cnaps.vision !=null and cnaps.vision != '' ">
+		and vision = #{cnaps.vision}
+		</if>
+	</select>
+	
+<insert id="batchInsert" parameterType="java.util.List">
+	insert into cnaps(code,name,clearing_bank_code,clearing_bank_level,provider_code,
+	ad_Code,create_date,last_modify_date,vision)
+	values
+	<foreach collection="list" item="cnaps" index="index" separator=",">
+		(#{cnaps.code}, #{cnaps.name}, #{cnaps.clearingBankCode},
+		#{cnaps.clearingBankLevel},#{cnaps.providerCode}, 
+		#{cnaps.adCode}, #{cnaps.createDate}, #{cnaps.lastModifyDate},
+		#{cnaps.vision})
+	</foreach>  
+</insert>
+	
+	
+</mapper>

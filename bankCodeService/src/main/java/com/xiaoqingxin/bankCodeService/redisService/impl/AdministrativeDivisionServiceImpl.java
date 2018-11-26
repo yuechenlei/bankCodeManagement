@@ -1,4 +1,4 @@
-package com.xiaoqingxin.bankCodeService.serviceImpl;
+package com.xiaoqingxin.bankCodeService.redisService.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.xiaoqingxin.bankCodeService.C;
 import com.xiaoqingxin.bankCodeService.model.LefuCodeToUnionPayCode;
-import com.xiaoqingxin.bankCodeService.service.AdministrativeDivisionService;
+import com.xiaoqingxin.bankCodeService.redisService.AdministrativeDivisionService;
 import com.xiaoqingxin.bankCodeService.utils.StringUtils;
 
 import redis.clients.jedis.Jedis;

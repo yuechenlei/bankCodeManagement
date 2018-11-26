@@ -17,6 +17,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 public class ExceptionLogInterceptor extends HandlerInterceptorAdapter {
 	private static Logger logger = LoggerFactory.getLogger(ExceptionLogInterceptor.class);
 
+	/** 无论是否产生异常都会在渲染视图后执行  */
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
 		if (ex != null) {

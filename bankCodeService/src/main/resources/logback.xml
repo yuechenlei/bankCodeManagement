@@ -1,42 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-	<!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径 -->
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+	<contextName>bankCodeService</contextName>
+	<!--定义日志文件的存储地址, 勿在 LogBack 的配置中使用相对路径 -->
 	<property name="LOG_HOME" value="F://logs" />
+	<property name="out.pattern"
+		value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}
+				-%msg%n" />
+	<!-- 活动文件的大小 -->
+	<property name="max.file.size" value="10MB" />
+	<!-- 保留的归档文件的最大数量 -->
+	<property name="max.history" value="30" />
 	<!-- 控制台输出 -->
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<!-- 日志输出编码 -->
-		<Encoding>UTF-8</Encoding>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} -%msg%n</pattern>
+			<pattern>${out.pattern}</pattern>
 		</encoder>
 	</appender>
-	<!-- 按照每天生成日志文件 -->
+	<!-- 每天生成日志文件%d -->
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<Encoding>UTF-8</Encoding>
+		<append>true</append>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!--日志文件输出的文件名 -->
 			<FileNamePattern>${LOG_HOME}/bankCodeService.log.%d{yyyy-MM-dd}.log
 			</FileNamePattern>
-			<MaxHistory>30</MaxHistory>
+			<MaxHistory>${max.history}</MaxHistory>
 		</rollingPolicy>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} -%msg%n</pattern>
+			<pattern>${out.pattern}</pattern>
 		</encoder>
 		<!--日志文件最大的大小 -->
 		<triggeringPolicy
 			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<MaxFileSize>10MB</MaxFileSize>
+			<MaxFileSize>${max.file.size}</MaxFileSize>
 		</triggeringPolicy>
 	</appender>
 
 	<!-- 日志输出级别 -->
-	<root>
-	    <level value="ERROR" />  
-        <level value="INFO" />
-        <level value="DEBUG" />
+	<root level="DEBUG">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="FILE" />
 	</root>

@@ -34,56 +34,53 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.xiaoqingxin.bankCodeService.mariaService.CnapsMariaService;
 import com.xiaoqingxin.bankCodeService.model.Cnaps;
-import com.xiaoqingxin.bankCodeService.redisService.CnapsService;
 import com.xiaoqingxin.bankCodeService.utils.Page;
 import com.xiaoqingxin.bankCodeService.utils.StringUtils;
 
 /**
- * @ClassName: CnapsController
- * @Description: 联行号访问控制器
- * @author Administrator
- * @date 2018年9月21日
- *
+* @ClassName: CanpsMariaController
+* @Description: mariaTest控制器
+* @author Administrator
+* @date 2018年10月7日
  */
 @Controller
-@RequestMapping("/cnaps")
-public class CnapsController {
+@RequestMapping("/maria")
+public class CanpsMariaController {
 	private static final Logger logger = LoggerFactory.getLogger(CnapsController.class);
 	@Resource
-	private CnapsService cnapsService;
+	private CnapsMariaService cnapsMariaService;
 	
 	/** 组合查询页面跳转 */
 	@RequestMapping("/cnapsExhibitionQuery/index")
-	public ModelAndView toCnapsExhibitionQuery(HttpServletRequest request) {
+	public ModelAndView toCnapsExhibitionQuery(@SessionAttribute(name="user",required=false) String user) {
 		ModelAndView mv = new ModelAndView();
-		if (request.getSession().getAttribute("user") == null) {
+		if (StringUtils.isBlank(user)) {
 			mv.setViewName("redirect:/toLogin.htm");
 			return mv;
 		}
-		String user = request.getSession().getAttribute("user").toString();
 		logger.info("method=toCnapsExhibitionQuery(),user={}", user);
 		mv.addObject("user", user);
-		mv.setViewName("cnaps/cnapsExhibitionQuery");
+		mv.setViewName("maria/cnapsExhibitionQuery");
 		return mv;
 	}
 
 	/** 根据联行号查询 */
 	@RequestMapping("searchByCncode")
 	@ResponseBody
-	public Map<String, Object> searchByCncode(HttpServletResponse response,
-			@RequestParam(value = "cncode", required = false) String cncode) {
+	public Map<String, Object> searchByCncode(@RequestParam(value = "cncode", required = false) String cncode) {
 		String code = cncode.trim();
 		Map<String, Object> map = null;
 		try {
-			Cnaps cs = cnapsService.searchByCncode(code);
+			Cnaps cs = cnapsMariaService.get(code);
 			map = new HashMap<String, Object>();
 			map.put("cnaps", cs);
 		} catch (Exception e) {
@@ -95,24 +92,22 @@ public class CnapsController {
 
 	/** 组合查询 */
 	@RequestMapping("/cnapsExhibitionQuery")
-	public ModelAndView cnapsExhibitionQuery(HttpServletRequest request, @ModelAttribute("cnaps") Cnaps cnaps) {
+	public ModelAndView cnapsExhibitionQuery(Cnaps cnaps,@SessionAttribute(name="user",required=false) String user) {
 		ModelAndView mv = new ModelAndView();
-		if (request.getSession().getAttribute("user") == null) {
+		if (StringUtils.isBlank(user)) {
 			// mv.addObject("msg", "请重新登录!!!");
 			// mv.setViewName("cnaps/cnapsExhibitionQueryResult");
 			mv.setViewName("error/nopermit");
 			return mv;
 		}
-		String user = request.getSession().getAttribute("user").toString();
 		logger.info("method=cnapsExhibitionQuery(),cnaps={},user={}", cnaps, user);
 		mv.addObject("user", user);
 
 		List<Cnaps> cnapsl = new ArrayList<Cnaps>();
 		// 如果查询条件为空...
-		if (cnaps.getCode().trim() == "" && cnaps.getName().trim() == "" && cnaps.getClearingBankLevel() == 0
-				&& cnaps.getProviderCode().trim() == "" && cnaps.getAdCode().trim() == "") {
+		if (cnapsIsEmpty(cnaps)) {
 			mv.addObject("cnapsl", cnapsl);
-			mv.setViewName("cnaps/cnapsExhibitionQueryResult");
+			mv.setViewName("maria/cnapsExhibitionQueryResult");
 			return mv;
 		}
 
@@ -120,80 +115,42 @@ public class CnapsController {
 			if (StringUtils.notBlank(cnaps.getCode())) {
 				String cncode = cnaps.getCode().trim();
 				if (cncode.matches("^\\d{12}$")) {
-					Cnaps cs = cnapsService.searchByCncode(cncode);
+					Cnaps cs = cnapsMariaService.get(cncode);
+					logger.info("method=cnapsMariaService.get(),cnaps={}",cs);
 					if (cs != null) {
 						cnapsl.add(cs);
 					}
 					mv.addObject("cnapsl", cnapsl);
 				}
-				mv.setViewName("cnaps/cnapsExhibitionQueryResult");
+				mv.setViewName("maria/cnapsExhibitionQueryResult");
 				return mv;
 
 			}
 
 			Page<List<Cnaps>> page = new Page<List<Cnaps>>();
-			int currentPage = request.getParameter("currentPage") == null ? 1
-					: Integer.parseInt(request.getParameter("currentPage"));
+//			int currentPage = request.getParameter("currentPage") == null ? 1
+//					: Integer.parseInt(request.getParameter("currentPage"));
+			int currentPage = 1;
 			page.setCurrentPage(currentPage);
 			page.setShowCount(100);
 			// 组合查询
-			page = cnapsService.cnapsCombQuery(page, cnaps);
+			page = cnapsMariaService.cnapsCombQuery(page, cnaps);
 			logger.info("method:cnapsCombQuery(),page={}, cnaps={}", page, cnaps);
 
 			mv.addObject("page", page);
 			mv.addObject("cnapsl", page.getObject());
-			mv.setViewName("cnaps/cnapsExhibitionQueryResult");
+			mv.setViewName("maria/cnapsExhibitionQueryResult");
 		} catch (Exception e) {
 			logger.error("", e);
 			mv.addObject("error", "系统异常，请稍后查询");
 		}
-
 		return mv;
 
 	}
 	
-	/**
-	 * 联行号维护(添加或修改)
-	 * 
-	 * @param separator
-	 *            各字段之间的分隔符
-	 * @param txt
-	 *            文本文件
-	 * @param text
-	 *            文本框
-	 * @return
-	 */
-	@RequestMapping("add")
-	public String add(@RequestParam(value = "separator", defaultValue = ",") String separator,
-			@RequestParam(value = "cnapsTxt", required = false) MultipartFile txt,
-			@RequestParam(value = "cnapsText", required = false) String text) {
-		List<String> errorMsg = new ArrayList<String>();
-		try {
-			List<String> rows = new ArrayList<>();
-			text = StringUtils.safeValue(text);
-			rows.addAll(Arrays.asList(text.split("\r\n")));
-			if (txt != null) {
-				try (BufferedReader reader = new BufferedReader(new InputStreamReader(txt.getInputStream()),
-						1024 * 2048)) {
-					for (String row = reader.readLine(); row != null; row = reader.readLine()) {
-						rows.add(row);
-					}
-				}
-			}
-			List<Cnaps> cnapses = textToCnaps(separator, rows, errorMsg);
-			cnapsService.add(cnapses);
-		} catch (Exception e) {
-			logger.error("", e);
-			errorMsg.add(e.getMessage());
-		}
-		ModelAndView result = new ModelAndView();
-		result.addObject("errorMsg", errorMsg);
-		return "/cnaps/add";
-	}
-
 	/** 导出 */
 	@RequestMapping("/cnapsExport")
-	public ModelAndView cnapsExport(HttpServletRequest request, @ModelAttribute("cnaps") Cnaps cnaps) {
+	public ModelAndView cnapsExport(Cnaps cnaps) {
 		logger.info("method:cnapsExport(),CnapsParam={}", cnaps);
 		ModelAndView mv = new ModelAndView();
 		List<Cnaps> cnapsl = new ArrayList<Cnaps>();
@@ -202,7 +159,7 @@ public class CnapsController {
 		if (cnaps.getCode().trim() == "" && cnaps.getName().trim() == "" && cnaps.getClearingBankLevel() == 0
 				&& cnaps.getProviderCode().trim() == "" && cnaps.getAdCode().trim() == "") {
 			mv.addObject("cnapsl", cnapsl);
-			mv.setViewName("cnaps/cnapsExportResult");
+			mv.setViewName("maria/cnapsExportResult");
 			return mv;
 		}
 
@@ -210,14 +167,14 @@ public class CnapsController {
 			if (!StringUtils.isBlank(cnaps.getCode())) {
 				String cncode = cnaps.getCode().trim();
 				if (cncode.matches("^\\d{12}$")) {
-					Cnaps cs = cnapsService.searchByCncode(cncode);
+					Cnaps cs = cnapsMariaService.get(cncode);
 					if (cs != null) {
 						cnapsl.add(cs);
 					}
 					mv.addObject("cnapsl", cnapsl);
 				}
 
-				mv.setViewName("cnaps/cnapsExportResult");
+				mv.setViewName("maria/cnapsExportResult");
 				return mv;
 
 			}
@@ -228,12 +185,12 @@ public class CnapsController {
 			// 每页显示数量
 			page.setShowCount(Integer.MAX_VALUE);
 			// 组合查询
-			page = cnapsService.cnapsCombQuery(page, cnaps);
+			page = cnapsMariaService.cnapsCombQuery(page, cnaps);
 
 			logger.info("method:cnapsExport(),cnaps={}, fields={}", cnaps);
 
 			mv.addObject("cnapsl", page.getObject());
-			mv.setViewName("cnaps/cnapsExportResult");
+			mv.setViewName("maria/cnapsExportResult");
 		} catch (Exception e) {
 			logger.error("{}", e);
 		}
@@ -246,15 +203,13 @@ public class CnapsController {
 	public Map<String, Object> confirmModify(Cnaps cnaps) {
 		logger.info("method=confirmModify(),Cnaps={}", cnaps);
 		Map<String, Object> msg = new HashMap<String, Object>();
-		List<Cnaps> cnapsl = new ArrayList<Cnaps>();
 		try {
 			String str = cnapsValidate(cnaps);
 			if (str != null) {
 				msg.put("result", "fail");
 				return msg;
 			}
-			cnapsl.add(cnaps);
-			cnapsService.add(cnapsl);
+			cnapsMariaService.insert(cnaps);
 			msg.put("result", "success");
 
 		} catch (Exception e) {
@@ -277,13 +232,8 @@ public class CnapsController {
 				msg.put("result", "fail");
 				return msg;
 			}
-			boolean result = cnapsService.modify(cnaps);
-			if (result) {
-				msg.put("result", "success");
-			} else {
-				msg.put("result", "fail");
-			}
-
+			cnapsMariaService.update(cnaps);
+			msg.put("result", "success");
 		} catch (Exception e) {
 			logger.info("{}", e);
 			msg.put("result", "fail");
@@ -292,10 +242,10 @@ public class CnapsController {
 
 	}
 
-	/** 新增联行号 */
+	/** 批量新增联行号 */
 	@RequestMapping("cnapsIncrease")
 	@ResponseBody
-	public Map<String, Object> cnapsIncrease(HttpServletResponse response,
+	public Map<String, Object> cnapsIncrease(
 			@RequestParam(value = "separator", defaultValue = ",") String separator,
 			@RequestParam(value = "cnapsTxt", required = false) MultipartFile txt,
 			@RequestParam(value = "cnapsText", required = false) String text,
@@ -334,7 +284,7 @@ public class CnapsController {
 				return map;
 			}
 			List<Cnaps> cnapses = textToCnapsAndValidate(separator, rows, errorMsg);
-			cnapsService.add(cnapses);
+			cnapsMariaService.batchInsert(cnapses);
 			map.put("result", "success");
 		} catch (RuntimeException e) {
 			logger.error("", e);
@@ -358,13 +308,13 @@ public class CnapsController {
 		Map<String, Object> msg = new HashMap<String, Object>();
 		try {
 			if (StringUtils.notBlank(newCode)) {
-				Cnaps cnap = cnapsService.searchByCncode(newCode);
+				Cnaps cnap = cnapsMariaService.get(newCode);
 				if (cnap != null && StringUtils.notBlank(cnap.getCode())) {
 					msg.put("result", "exist");
 					return msg;
 				}
 			}
-			cnapsService.del(cnaps);
+			cnapsMariaService.delete(cnaps.getCode());
 			msg.put("result", "success");
 
 		} catch (Exception e) {
@@ -380,9 +330,9 @@ public class CnapsController {
 	public void cnapsTotalExport(HttpServletResponse response) {
 		logger.info("method:cnapsTotalExport()");
 		try {
-			List<Cnaps> cnapsl = cnapsService.cnapsTotalQuery();
-			logger.info("method=cnapsTotalExport(),List<Cnaps> size={}", cnapsl.size());
-
+//			List<Cnaps> cnapsl = cnapsService.cnapsTotalQuery();
+//			logger.info("method=cnapsTotalExport(),List<Cnaps> size={}", cnapsl.size());
+			List<Cnaps> cnapsl = new ArrayList<>();
 			// 创建07版的excel工作簿
 			SXSSFWorkbook workbook = new SXSSFWorkbook();
 			// 创建工作表
@@ -733,43 +683,24 @@ public class CnapsController {
 		return map;
 
 	}
-
 	
-
-	/**
-	 * 从文本形式转为Cnaps集合
-	 * 
-	 * @param separator
-	 *            分隔符
-	 * @param text
-	 *            文本内容
-	 * @param errorMsg
-	 *            解析错误的信息
-	 * @return Cnaps集合
-	 */
-	private List<Cnaps> textToCnaps(String separator, List<String> rows, List<String> errorMsg) {
-		List<Cnaps> cnapses = new ArrayList<>();
-		try {
-			for (String row : rows) {
-				String[] cnapsStrArray = row.split(separator);
-				if (cnapsStrArray.length != 6) {
-					errorMsg.add("长度必须为6,默认以英文逗号分割：" + row);
-					continue;
-				}
-				Cnaps cnaps = new Cnaps();
-				cnaps.setCode(cnapsStrArray[0]);
-				cnaps.setName(cnapsStrArray[1]);
-				cnaps.setClearingBankCode(cnapsStrArray[2]);
-				cnaps.setClearingBankLevel(Integer.parseInt(cnapsStrArray[3]));
-				cnaps.setProviderCode(cnapsStrArray[4]);
-				cnaps.setAdCode(cnapsStrArray[5]);
-				cnapses.add(cnaps);
-			}
-		} catch (Exception e) {
-			logger.error("", e);
-			errorMsg.add(e.getMessage());
-		}
-		return cnapses;
+	/** 是否全部为空  */
+	private boolean cnapsIsEmpty(Cnaps cnaps){
+		boolean flag = false;
+		int i = 10;
+		if(cnaps.getCode() == null || cnaps.getCode().trim()== "") i--;
+		if(cnaps.getName() == null || cnaps.getName().trim()== "") i--;
+		if(cnaps.getClearingBankLevel() == 0) i--;
+		if(cnaps.getProviderCode()== null || cnaps.getProviderCode().trim()== "") i--;
+		if(cnaps.getAdCode() == null || cnaps.getAdCode().trim()== "") i--;
+		if(cnaps.getCreateDateStart() == null || cnaps.getCreateDateStart().trim()== "") i--;
+		if(cnaps.getCreateDateEnd() == null || cnaps.getCreateDateEnd().trim()== "") i--;
+		if(cnaps.getLastModifyDateStart() == null || cnaps.getLastModifyDateStart().trim()== "") i--;
+		if(cnaps.getLastModifyDateEnd() == null || cnaps.getLastModifyDateEnd().trim()== "") i--;
+		if(cnaps.getVision() == 0) i--;
+		
+		if(i==0) flag = true;
+		return flag;
 	}
 	
 

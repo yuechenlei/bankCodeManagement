@@ -1,4 +1,4 @@
-package com.xiaoqingxin.bankCodeService.service;
+package com.xiaoqingxin.bankCodeService.redisService;
 
 import java.util.List;
 import java.util.Map;

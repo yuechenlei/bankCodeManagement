@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration   PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+  <!-- 别名,扫描包的方式,默认为首字母小写的类名 -->
+  <typeAliases>
+     <package name="com.xiaoqingxin.bankCodeService.model" />
+  </typeAliases>
+  
+  <!-- mapper映射文件 -->
+  <mappers>
+    <mapper resource="com/xiaoqingxin/bankCodeService/dao/CnapsMapper.xml"/>
+  </mappers>
+</configuration>
