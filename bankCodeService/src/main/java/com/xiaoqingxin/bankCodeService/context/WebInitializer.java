@@ -25,6 +25,7 @@ import com.xiaoqingxin.bankCodeService.utils.ApplicationContextUtils;
 
 
 /**
+ *   接口方式配置
 * @ClassName: WebInitializer
 * @Description: Web应用初始化
 * @author Administrator
