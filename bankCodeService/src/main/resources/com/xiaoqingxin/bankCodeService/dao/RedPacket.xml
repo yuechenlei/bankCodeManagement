@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaoqingxin.bankCodeService.mapper.RedPacketDao">
+
+	<!--  普通查询 -->
+	<select id="getRedPacket" parameterType="long" resultType="com.xiaoqingxin.bankCodeService.model.RedPacket">
+	SELECT id,user_id AS userId,amount,send_date AS sendDate,total,unit_amount AS unitAmount,stock,version,note
+	FROM t_red_packet 
+	WHERE id = #{id}
+	</select>
+	
+	<!-- 扣减红包库存 -->
+	<update id="decreaseRedPacket">
+	UPDATE t_red_packet 
+	SET stock = stock -1
+	WHERE id = #{id}
+	</update>
+	
+	<!-- 悲观锁 -->
+	<select id="getRedPacketForUpdate" parameterType="long" resultType="com.xiaoqingxin.bankCodeService.model.RedPacket">
+		SELECT id, user_id AS userId, amount, send_date as sendDate, total, unit_amount as unitAmount, stock, version, note
+		FROM t_red_packet 
+		WHERE id = #{id} FOR UPDATE
+	</select>
+	
+	<!-- 乐观锁 -->
+	<update id="decreaseRedPacketForVersion">
+		UPDATE t_red_packet
+		SET stock = stock - 1,
+		version = version + 1
+		WHERE id = #{id}
+		AND version = #{version}
+	</update>
+	
+	
+	
+</mapper>

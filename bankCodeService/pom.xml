@@ -4,7 +4,7 @@
 	<groupId>com.xiaoqingxin</groupId>
 	<artifactId>bankCodeService</artifactId>
 	<packaging>war</packaging>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.1</version>
 	<name>bankCodeService Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 	<properties>

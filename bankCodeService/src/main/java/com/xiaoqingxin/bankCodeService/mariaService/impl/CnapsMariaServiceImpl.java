@@ -7,6 +7,9 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -25,16 +28,19 @@ public class CnapsMariaServiceImpl implements CnapsMariaService{
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, isolation=Isolation.READ_COMMITTED)
-	public void insert(Cnaps cnaps) {
+	@CachePut(value = "redisCacheManager", key = "'MARIADB_CNAPS:'+#cnaps.code") // 缓存的数据类型为字符串
+	public Cnaps insert(Cnaps cnaps) {
 		logger.info("method=insert(),cnaps={}",cnaps);
 		cnaps.setCreateDate(new Date());
 		cnaps.setLastModifyDate(new Date());
 		cnaps.setVision(0);
 		cnapsMapper.insert(cnaps);
+		return cnaps;
 	}
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, isolation=Isolation.READ_COMMITTED)
+	@CacheEvict(value = "redisCacheManager", key = "'MARIADB_CNAPS:'+#code")
 	public void delete(String code) {
 		logger.info("method=delete(),code={}",code);
 		cnapsMapper.delete(code);
@@ -42,14 +48,15 @@ public class CnapsMariaServiceImpl implements CnapsMariaService{
 
 	@Override
 	@Transactional(propagation = Propagation.REQUIRED, isolation=Isolation.READ_COMMITTED)
-	public boolean update(Cnaps cnaps) {
+	@CachePut(value = "redisCacheManager", key = "'MARIADB_CNAPS:'+#cnaps.code")
+	public Cnaps update(Cnaps cnaps) {
 		logger.info("method=update(),cnaps={}",cnaps);
 		try {
 			cnaps.setLastModifyDate(new Date());
 			int vision = cnaps.getVision();
 			cnaps.setVision(++vision);
 			cnapsMapper.update(cnaps);
-			return true;
+			return cnaps;
 		} catch (Exception e) {
 			logger.error("",e);
 			// 让事务管理器捕捉异常
@@ -58,6 +65,7 @@ public class CnapsMariaServiceImpl implements CnapsMariaService{
 	}
 
 	@Override
+	@Cacheable(value = "redisCacheManager", key = "'MARIADB_CNAPS:'+#code")
 	public Cnaps get(String code) {
 		logger.info("method=get(),code={}",code);
 		return cnapsMapper.get(code);

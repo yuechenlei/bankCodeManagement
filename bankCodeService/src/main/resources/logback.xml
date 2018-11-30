@@ -7,7 +7,7 @@
 		value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50}
 				-%msg%n" />
 	<!-- 活动文件的大小 -->
-	<property name="max.file.size" value="10MB" />
+	<property name="max.file.size" value="20MB" />
 	<!-- 保留的归档文件的最大数量 -->
 	<property name="max.history" value="30" />
 	<!-- 控制台输出 -->

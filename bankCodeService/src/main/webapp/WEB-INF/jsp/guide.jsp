@@ -66,6 +66,10 @@ function toNewPage(){
 		<div>
 			<a href="${pageContext.request.contextPath}/maria/cnapsExhibitionQuery/index.htm" class="onHover">mariaTest</a>
 		</div>
+		<br class="newPage2">
+		<div>
+			<a href="${pageContext.request.contextPath}/userRedPacket/grapRedPacket/index.htm" class="onHover">并发测试</a>
+		</div>
 	</div>
 </div>
 </body>

@@ -2,10 +2,9 @@
     <wb-module deploy-name="bankCodeService">
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
-        <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
-        <wb-resource deploy-path="/" source-path="/src/main/webapp"/>
-        <property name="java-output-path" value="/bankCodeService/target/classes"/>
+        <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
         <property name="context-root" value="bankCodeService"/>
+        <property name="java-output-path" value="/bankCodeService/target/classes"/>
     </wb-module>
 </project-modules>

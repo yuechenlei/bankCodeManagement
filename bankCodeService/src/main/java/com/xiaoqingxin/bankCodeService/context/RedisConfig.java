@@ -2,11 +2,17 @@ package com.xiaoqingxin.bankCodeService.context;
 
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
@@ -24,6 +30,7 @@ import redis.clients.jedis.JedisPoolConfig;
  *
  */
 @Configuration
+@EnableCaching
 @PropertySource("classpath:/redis.properties")
 public class RedisConfig {
 	
@@ -128,7 +135,7 @@ public class RedisConfig {
 		jcf.setTimeout(connTimeout);
 		jcf.setPassword(password);
 		jcf.setDatabase(dbIndex);
-		// 因为配置在了ioc容器中,所以不需要自行调用了,spring会自动调用
+		// 因为配置在了ioc容器中 ，所以不需要自行调用了,spring会自动调用
 //		jcf.afterPropertiesSet();
 		return jcf;
 	}
@@ -136,16 +143,34 @@ public class RedisConfig {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Bean
 	public RedisTemplate redisTemplate(){
+	
 		RedisTemplate rt = new RedisTemplate();
+		// 为了测试暂时取消JdkSerializationRedisSerializer  不测试了需要改过来
 		RedisSerializer jsrs = new JdkSerializationRedisSerializer();
 		RedisSerializer srs = new StringRedisSerializer(Charset.forName("UTF-8"));
 		rt.setDefaultSerializer(srs);
 		rt.setKeySerializer(srs);
+//		rt.setValueSerializer(srs);
 		rt.setValueSerializer(jsrs);
 		rt.setHashKeySerializer(srs);
+//		rt.setHashValueSerializer(srs);
 		rt.setHashValueSerializer(jsrs);
 		rt.setConnectionFactory(jedisConnectionFactory());
 		return rt;
+	}
+	
+	/** 缓存管理器 */
+	@SuppressWarnings("rawtypes")
+	@Bean(name = "redisCacheManager")
+	public CacheManager redisCacheManager(@Autowired RedisTemplate redisTempate) {
+		RedisCacheManager cacheManager = new RedisCacheManager(redisTempate);
+		// 设置超时时间为10 分钟 单位为秒
+		cacheManager.setDefaultExpiration(600);
+		// 设置缓存名称
+		List<String> cacheNames = new ArrayList<String>();
+		cacheNames.add("redisCacheManager");
+		cacheManager.setCacheNames(cacheNames);
+		return cacheManager;
 	}
 	
 

@@ -11,5 +11,7 @@
   <!-- mapper映射文件 -->
   <mappers>
     <mapper resource="com/xiaoqingxin/bankCodeService/dao/CnapsMapper.xml"/>
+    <mapper resource="com/xiaoqingxin/bankCodeService/dao/RedPacket.xml"/>
+    <mapper resource="com/xiaoqingxin/bankCodeService/dao/UserRedPacket.xml"/>
   </mappers>
 </configuration>

@@ -15,11 +15,13 @@ import com.xiaoqingxin.bankCodeService.utils.Page;
 
 public interface CnapsMariaService {
 	
-	void insert(Cnaps cnaps);
+	// 为适应缓存而返回 Cnaps
+	Cnaps insert(Cnaps cnaps);
 
 	void delete(String code);
 
-	boolean update(Cnaps cnaps);
+	// 为适应缓存而返回 Cnaps
+	Cnaps update(Cnaps cnaps);
 
 	/** 通过联行号查询  */
 	Cnaps get(String code);

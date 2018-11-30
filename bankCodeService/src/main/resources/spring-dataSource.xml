@@ -39,12 +39,13 @@
      <property name="password" value="${dataSource.password}" />
      
      <!-- 配置初始化大小、最小、最大 -->
-     <property name="initialSize" value="1" />
-     <property name="minIdle" value="1" /> 
-     <property name="maxActive" value="10" />
+     <property name="initialSize" value="${dataSource.initialSize}" />
+     <property name="minIdle" value="${dataSource.minIdle}" /> 
+     <property name="maxIdle" value="${dataSource.maxIdle}" />
+     <property name="maxActive" value="${dataSource.maxActive}" />
   
      <!-- 配置获取连接等待超时的时间 -->
-     <property name="maxWait" value="60000" />
+     <property name="maxWait" value="${dataSource.maxWait}" />
   
      <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
      <property name="timeBetweenEvictionRunsMillis" value="60000" />
