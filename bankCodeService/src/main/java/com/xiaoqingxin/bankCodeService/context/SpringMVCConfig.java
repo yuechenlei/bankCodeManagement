@@ -3,7 +3,9 @@ package com.xiaoqingxin.bankCodeService.context;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
@@ -11,6 +13,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
@@ -39,8 +44,9 @@ import com.xiaoqingxin.bankCodeService.web.converter.StringToCnapsConverter;
  */
 @Configuration
 @EnableWebMvc
+@EnableAsync // 支持异步调用
 @ComponentScan(basePackages = "com.xiaoqingxin.bankCodeService.web.controller", useDefaultFilters = false, includeFilters = @Filter(Controller.class) )
-public class SpringMVCConfig extends WebMvcConfigurerAdapter {
+public class SpringMVCConfig extends WebMvcConfigurerAdapter  implements AsyncConfigurer {
 	
 	/** 添加自定义转换器和格式化器 */
 	@Override
@@ -139,6 +145,22 @@ public class SpringMVCConfig extends WebMvcConfigurerAdapter {
 		// 往适配器加入json转换器
 		rmhd.getMessageConverters().add(jsonConverter);
 		return rmhd;
+	}
+
+	@Override
+	public Executor getAsyncExecutor() {
+		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+		taskExecutor.setCorePoolSize(5);
+		taskExecutor.setMaxPoolSize(10);
+		taskExecutor.setQueueCapacity(200);
+		taskExecutor.initialize();
+		return taskExecutor;
+	}
+
+	@Override
+	public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	// 国际化信息(配合msg.properties与spring的message标签)
