@@ -156,6 +156,7 @@ public class RedisConfig {
 //		rt.setHashValueSerializer(srs);
 		rt.setHashValueSerializer(jsrs);
 		rt.setConnectionFactory(jedisConnectionFactory());
+		rt.setEnableTransactionSupport(true);
 		return rt;
 	}
 	
